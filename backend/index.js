@@ -1,48 +1,45 @@
-import express, { urlencoded } from "express"; // Ensure express is imported
+import express, { urlencoded } from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/database.js";
 import userRoute from "./routes/userRoute.js";
 import cookieParser from "cookie-parser";
 import messageRoute from "./routes/messageRoute.js";
 import cors from "cors";
-import { app, server } from "./socket/socket.js"; // Import app and server from socket.js
+import { app, server } from "./socket/socket.js";
 
-dotenv.config(); // Ensure dotenv is configured
+dotenv.config();
 
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
 app.use(urlencoded({ extended: true }));
 
-/*const corsOption = {
-  origin: "http://localhost:5173",
-  credentials: true,
-};
-app.use(cors(corsOption));*/
-
+// Define allowed origins
 const allowedOrigins = [
-'https://chat-frontend-phi-six.vercel.app/',
-  'https://chat-frontend-git-main-siddharth-dhodis-projects.vercel.app/',
-  'https://chat-frontend-k0q8xwu73-siddharth-dhodis-projects.vercel.app/',
-  "http://localhost:5173/"
+  'https://chat-frontend-phi-six.vercel.app',
+  'https://chat-frontend-git-main-siddharth-dhodis-projects.vercel.app',
+  'https://chat-frontend-k0q8xwu73-siddharth-dhodis-projects.vercel.app',
+  'http://localhost:5173',
 ];
 
-// CORS configuration
+// Configure CORS
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (allowedOrigins.includes(origin) || !origin) {
-      // Allow requests with no origin (e.g., mobile apps, postman)
-      callback(null, true);
+  origin: (origin, callback) => {
+    console.log("Origin:", origin); // Debugging: log the incoming origin
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true); // Allow the request
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error(`Origin not allowed by CORS: ${origin}`)); // Deny the request
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-   allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, // Allow credentials (e.g., cookies)
 };
 
 // Apply CORS middleware
 app.use(cors(corsOptions));
+
 // Routes
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/message", messageRoute);
