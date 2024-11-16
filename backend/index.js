@@ -20,15 +20,29 @@ app.use(urlencoded({ extended: true }));
 };
 app.use(cors(corsOption));*/
 
+const allowedOrigins = [
+'https://chat-frontend-phi-six.vercel.app/',
+  'https://chat-frontend-git-main-siddharth-dhodis-projects.vercel.app/',
+  'https://chat-frontend-k0q8xwu73-siddharth-dhodis-projects.vercel.app/',
+  "http://localhost:5173/"
+];
+
+// CORS configuration
 const corsOptions = {
-  origin: '*', // Allow all origins
+  origin: function (origin, callback) {
+    if (allowedOrigins.includes(origin) || !origin) {
+      // Allow requests with no origin (e.g., mobile apps, postman)
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
 // Apply CORS middleware
 app.use(cors(corsOptions));
-
 // Routes
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/message", messageRoute);
